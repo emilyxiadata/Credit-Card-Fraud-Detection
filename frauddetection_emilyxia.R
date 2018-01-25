@@ -8,7 +8,7 @@ library(ROCR)
 library(DMwR)
 library(ggplot2)
 
-df <-fread('C:\\Users\\lulu\\Documents\\R\\workdirectory\\creditcard.csv')
+df <-fread('/Users/lulu/Downloads/creditcard.csv')
 
 #data exploratory analysis and preprocessing
 summary(df)
@@ -33,7 +33,7 @@ test <- df[-index,]
 logit <- glm(Class ~ ., data = training, family = 'binomial')
 logit_pred <- predict(logit, test, type = 'response')
 
-logit_prediction <- preidiction(logit_pred, test$Class)
+logit_prediction <- prediction(logit_pred, test$Class)
 logit_recall <- performance(logit_prediction,'prec','rec')
 logit_roc <- performance(logit_prediction,'tpr','fpr')
 logit_auc <- performance(logit_prediction,'auc')
@@ -42,20 +42,20 @@ logit_auc <- performance(logit_prediction,'auc')
 rf.model <- randomForest(Class ~ ., data = training, ntree = 2000, nodesize = 20)
 rf_pred <- predict(rf.model, test, type = 'prob')
 
-rf_prediction <- prediciton(rf_pred[,2], test$Class)
+rf_prediction <- prediction(rf_pred[,2], test$Class)
 rf_recall <- performance(rf_prediction,'prec','rec')
 rf_roc <- performance(rf_prediction,'tpr','fpr')
 rf_auc <- performance(rf_prediction,'auc')
 
 #Downsampling with SMOTE package
-train_smote <- SMOTE(Class ~ ., training, perc.over = 200, perc.under=100)
+train_smote <- SMOTE(Class ~ ., training, perc.over = 3000, perc.under=100)
 table(train_smote$Class)
 
 ctrl <- trainControl(method ='cv', number = 10)
 
 tb_model <- train(Class ~ ., data = train_smote, method = 'treebag', trControl = ctrl)
 
-tb_pred <-predict(tb_model$finalModel, test, type = 'prob')
+tb_pred <- predict(tb_model$finalModel, test, type = 'prob')
 
 tb_prediction <- prediction(tb_pred[,2], test$Class)
 tb_recall <- performance(tb_prediction,'prec','rec')
